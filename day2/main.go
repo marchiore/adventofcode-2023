@@ -8,18 +8,31 @@ import (
 	"strings"
 )
 
-type game struct {
-	gameNumber int
-	hands      []hand
-}
+var maxBlue = 14
+var maxRed = 12
+var maxGreen = 13
 
-type hand struct {
-	size  int
-	color string
-}
+func hasInvalidNumberOfCubes(color string, num int) bool {
+	result := false
 
-func loadGames() {
-
+	switch color {
+	case "blue":
+		// fmt.Printf("%d > %d", num, maxBlue)
+		if num > maxBlue {
+			result = true
+		}
+	case "green":
+		// fmt.Printf("%d > %d", num, maxGreen)
+		if num > maxGreen {
+			result = true
+		}
+	case "red":
+		// fmt.Printf("%d > %d", num, maxRed)
+		if num > maxRed {
+			result = true
+		}
+	}
+	return result
 }
 
 func main() {
@@ -33,26 +46,54 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 
-	for scanner.Scan() {
-		lineSplitted := strings.Split(scanner.Text(), ":")
+	result := 0
 
-		// gameNumber := strings.Replace(lineSplitted[0], "Game ", "", 1)
+	for scanner.Scan() {
+
+		lineSplitted := strings.Split(scanner.Text(), ":")
 
 		picks := lineSplitted[1]
 
+		gameNumber := strings.Replace(lineSplitted[0], "Game ", "", -1)
+
 		handsPicked := strings.Split(picks, ";")
 
+		gameIsPossible := true
+
 		for i := 0; i < len(handsPicked); i++ {
-			cubesPicked := strings.Split(handsPicked[i], " ")
 
-			num, err := strconv.Atoi(cubesPicked[1])
+			cubesPicked := strings.Split(strings.TrimSpace(handsPicked[i]), ",")
+			// fmt.Println(cubesPicked)
 
-			if err != nil {
-				fmt.Println("Erro ao converter string para int:", err)
+			for x := 0; x < len(cubesPicked); x++ {
+
+				colors := strings.TrimSpace(cubesPicked[x])
+
+				cubes := strings.Split(colors, " ")
+
+				// fmt.Println(cubes[0])
+
+				num, _ := strconv.Atoi(cubes[0])
+				color := cubes[1]
+
+				hasInvalidNumberOfCubes := hasInvalidNumberOfCubes(color, num)
+
+				// fmt.Printf(" %d - %s : %t", num, color, hasInvalidNumberOfCubes)
+
+				if hasInvalidNumberOfCubes {
+					gameIsPossible = false
+				}
 			}
-
-			fmt.Println(hand{size: num, color: strings.Replace(cubesPicked[2], ",", "", 1)})
-
 		}
+
+		if gameIsPossible {
+			num, _ := strconv.Atoi(gameNumber)
+			result += num
+		}
+
+		fmt.Printf("\n")
+
 	}
+
+	fmt.Printf("%d", result)
 }
