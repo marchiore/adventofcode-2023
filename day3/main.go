@@ -8,6 +8,10 @@ import (
 	"strconv"
 )
 
+func checkLine(line int) {
+
+}
+
 func main() {
 
 	file, err := os.Open("data.txt")
@@ -29,6 +33,7 @@ func main() {
 		lines[lineNumber] = scanner.Text()
 		lineNumber++
 	}
+
 	result := 0
 
 	for i, line := range lines {
@@ -38,33 +43,107 @@ func main() {
 
 			init := match[0]
 			end := match[1]
-			// fmt.Printf("%d, %d", match[0], match[1])
-			// fmt.Println("\n")
-
-			// fmt.Println(line[match[0]:match[1]])
 
 			number := ""
 
-			if end >= 139 {
-				// fmt.Println(line[init-1 : end])
-				number = line[init-1 : end]
+			startRange := 0
+			endRange := 0
+
+			if init == 0 {
+				startRange = 1
 			} else {
-				// fmt.Println(line[init-1 : end+1])
-				number = line[init-1 : end+1]
+				startRange = init - 1
 			}
 
+			if end >= 139 {
+				endRange = end
+			} else {
+				endRange = end + 1
+			}
+
+			number = line[startRange:endRange]
+
 			if regexSpecialCharacters.MatchString(number) {
-				// fmt.Println(number)
 
 				num, _ := strconv.Atoi(line[init:end])
 
 				result += num
 			} else {
-				// ler a linha de cima e de baixo para ver se na posição tem caracter especial
 
-				fmt.Printf("line={%d} init={%d}, end={%d} \n", i, init, end)
+				// primeira linha
+				if i == 1 {
 
-				if line
+					startRange := 0
+					endRange := 0
+
+					if init == 1 {
+						startRange = 1
+					} else {
+						startRange = init - 1
+					}
+
+					if end >= 139 {
+						endRange = end
+					} else {
+						endRange = end + 1
+					}
+
+					if regexSpecialCharacters.MatchString(lines[i+1][startRange:endRange]) {
+						num, _ := strconv.Atoi(line[init:end])
+						result += num
+						fmt.Printf("number in={%d} line={%d} \n", num, i)
+					}
+
+					// fmt.Printf("line={%s} init={%d}, end={%d} \n", lines[2][startRange:endRange], init, end)
+
+				} else if i == lineNumber-1 {
+					startRange := 0
+					endRange := 0
+
+					if init == 1 {
+						startRange = 1
+					} else {
+						startRange = init - 1
+					}
+
+					if end >= 139 {
+						endRange = end
+					} else {
+						endRange = end + 1
+					}
+
+					if regexSpecialCharacters.MatchString(lines[i-1][startRange:endRange]) {
+						num, _ := strconv.Atoi(line[init:end])
+						result += num
+						fmt.Printf("number in={%d} line={%d} \n", num, i)
+					}
+				} else {
+					startRange := 0
+					endRange := 0
+
+					if init == 0 {
+						startRange = 0
+					} else {
+						startRange = init - 1
+					}
+
+					if end >= 139 {
+						endRange = end
+					} else {
+						endRange = end + 1
+					}
+
+					if regexSpecialCharacters.MatchString(lines[i-1][startRange:endRange]) {
+						num, _ := strconv.Atoi(line[init:end])
+						result += num
+						fmt.Printf("number in={%d} line={%d} \n", num, i)
+					} else if regexSpecialCharacters.MatchString(lines[i+1][startRange:endRange]) {
+						num, _ := strconv.Atoi(line[init:end])
+						result += num
+						fmt.Printf("number in={%d} line={%d} \n", num, i)
+					}
+
+				}
 
 			}
 
