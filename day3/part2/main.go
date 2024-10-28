@@ -8,321 +8,6 @@ import (
 	"strconv"
 )
 
-func isNumber(s string) bool {
-	_, err := strconv.Atoi(s)
-	return err == nil
-}
-
-func findTheWholeNumber(line string, startPosition int, endPosition int, forward bool) int {
-
-	findChar := false
-	for !findChar {
-
-		if forward {
-			if isNumber(line[startPosition+1 : endPosition+3]) {
-				num, err := strconv.Atoi(line[startPosition+1 : endPosition+3])
-				if err == nil {
-					findChar = true
-					return num
-				}
-			} else if isNumber(line[startPosition+1 : endPosition+2]) {
-				num, err := strconv.Atoi(line[startPosition+1 : endPosition+2])
-				if err == nil {
-					findChar = true
-					return num
-				}
-			} else if isNumber(line[startPosition+1 : endPosition+1]) {
-				num, err := strconv.Atoi(line[startPosition+1 : endPosition+1])
-				if err == nil {
-					findChar = true
-					return num
-				}
-			}
-		} else {
-			if isNumber(line[startPosition-3 : endPosition-1]) {
-				num, err := strconv.Atoi(line[startPosition-3 : endPosition-1])
-				if err == nil {
-					findChar = true
-					return num
-				}
-			} else if isNumber(line[startPosition-2 : endPosition-1]) {
-				num, err := strconv.Atoi(line[startPosition-2 : endPosition-1])
-				if err == nil {
-					findChar = true
-					return num
-				}
-			} else if isNumber(line[startPosition-1 : endPosition-1]) {
-				num, err := strconv.Atoi(line[startPosition-1 : endPosition-1])
-				if err == nil {
-					findChar = true
-					return num
-				}
-			}
-		}
-
-	}
-	return 0
-}
-
-func checkAsteriskConnectedNumbers(line string, lineAbove string, lineBelow string, init int, end int) int {
-
-	var arr []int
-
-	charBefore := line[init-1 : end-1]
-	if isNumber(charBefore) {
-		arr = append(arr, findTheWholeNumber(line, init, end, false))
-	}
-
-	charAfter := line[init+1 : end+1]
-	if isNumber(charAfter) {
-		arr = append(arr, findTheWholeNumber(line, init, end, true))
-	}
-
-	// check line below
-	if lineBelow != "" {
-		shouldIgnoreSpacedNumberBelow := false
-		if isNumber(lineBelow[init-1:end-1]) && isNumber(lineBelow[init+1:end+1]) {
-			// .123.
-			//  .*.
-			num, err := strconv.Atoi(lineBelow[init-1 : end+1])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberBelow = true
-			}
-		} else if isNumber(lineBelow[init-2 : end]) {
-			// .123...
-			// ...*...
-			num, err := strconv.Atoi(lineBelow[init-2 : end])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberBelow = true
-			}
-		} else if isNumber(lineBelow[init : end+2]) {
-			// ...123.
-			// ...*...
-			num, err := strconv.Atoi(lineBelow[init : end+2])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberBelow = true
-			}
-		} else if isNumber(lineBelow[init-1 : end]) {
-			// ..12...
-			// ...*...
-			num, err := strconv.Atoi(lineBelow[init-1 : end])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberBelow = true
-			}
-		} else if isNumber(lineBelow[init : end+1]) {
-			// ...12..
-			// ...*...
-			num, err := strconv.Atoi(lineBelow[init : end+1])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberBelow = true
-			}
-		} else if isNumber(lineBelow[init:end]) {
-			// ...1...
-			// ...*...
-			num, err := strconv.Atoi(lineBelow[init:end])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberBelow = true
-			}
-		}
-
-		if len(arr) == 0 && !shouldIgnoreSpacedNumberBelow {
-			if isNumber(lineBelow[init-3 : end-1]) {
-				// 123....
-				// ...*...
-				num, err := strconv.Atoi(lineBelow[init-3 : end-1])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			} else if isNumber(lineBelow[init-2 : end-1]) {
-				// .12....
-				// ...*...
-				num, err := strconv.Atoi(lineBelow[init-2 : end-1])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			} else if isNumber(lineBelow[init-1 : end-1]) {
-				// ..1....
-				// ...*...
-				num, err := strconv.Atoi(lineBelow[init-1 : end-1])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			}
-
-			if isNumber(lineBelow[init+1 : end+3]) {
-				// ....123
-				// ...*...
-				num, err := strconv.Atoi(lineBelow[init+1 : end+3])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			} else if isNumber(lineBelow[init+1 : end+2]) {
-				// ....12.
-				// ...*...
-				num, err := strconv.Atoi(lineBelow[init+1 : end+3])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			} else if isNumber(lineBelow[init+1 : end+1]) {
-				// ....1..
-				// ...*...
-				num, err := strconv.Atoi(lineBelow[init+1 : end+1])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			}
-		}
-
-	}
-
-	if lineAbove != "" && len(arr) < 2 {
-		shouldIgnoreSpacedNumberAbove := false
-
-		if isNumber(lineAbove[init-1:end-1]) && isNumber(lineAbove[init+1:end+1]) {
-			// .123.
-			//  .*.
-			num, err := strconv.Atoi(lineAbove[init-1 : end+1])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberAbove = true
-			}
-		} else if isNumber(lineAbove[init-2 : end]) {
-			// .123...
-			// ...*...
-			num, err := strconv.Atoi(lineAbove[init-2 : end])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberAbove = true
-			}
-		} else if isNumber(lineAbove[init : end+2]) {
-			// ...123.
-			// ...*...
-			num, err := strconv.Atoi(lineAbove[init : end+2])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberAbove = true
-			}
-		} else if isNumber(lineAbove[init-1 : end]) {
-			// ..12...
-			// ...*...
-			num, err := strconv.Atoi(lineAbove[init-1 : end])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberAbove = true
-			}
-		} else if isNumber(lineAbove[init : end+1]) {
-			// ...12..
-			// ...*...
-			num, err := strconv.Atoi(lineAbove[init : end+1])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberAbove = true
-			}
-		} else if isNumber(lineAbove[init:end]) {
-			// ...1...
-			// ...*...
-			num, err := strconv.Atoi(lineAbove[init:end])
-
-			if err == nil {
-				arr = append(arr, num)
-				shouldIgnoreSpacedNumberAbove = true
-			}
-		}
-
-		if len(arr) <= 1 && !shouldIgnoreSpacedNumberAbove {
-			if isNumber(lineAbove[init-3 : end-1]) {
-				// 123....
-				// ...*...
-				num, err := strconv.Atoi(lineAbove[init-3 : end-1])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			} else if isNumber(lineAbove[init-2 : end-1]) {
-				// .12....
-				// ...*...
-				num, err := strconv.Atoi(lineAbove[init-2 : end-1])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			} else if isNumber(lineAbove[init-1 : end-1]) {
-				// ..1....
-				// ...*...
-				num, err := strconv.Atoi(lineAbove[init-1 : end-1])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			}
-
-			if isNumber(lineAbove[init+1 : end+3]) {
-				// ....123
-				// ...*...
-				num, err := strconv.Atoi(lineAbove[init+1 : end+3])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			} else if isNumber(lineAbove[init+1 : end+2]) {
-				// ....12.
-				// ...*...
-				num, err := strconv.Atoi(lineAbove[init+1 : end+3])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			} else if isNumber(lineAbove[init+1 : end+1]) {
-				// ....1..
-				// ...*...
-				num, err := strconv.Atoi(lineAbove[init+1 : end+1])
-
-				if err == nil {
-					arr = append(arr, num)
-				}
-			}
-		}
-
-	}
-
-	if len(arr) > 2 {
-		for _, value := range arr {
-			fmt.Println(value)
-		}
-		fmt.Printf("BUG")
-	}
-
-	if len(arr) > 1 {
-		fmt.Printf("multiplicando os numeros {%d} * {%d} \n", arr[0], arr[1])
-		return arr[0] * arr[1]
-	}
-
-	return 0
-}
-
 func main() {
 
 	result := 0
@@ -338,6 +23,10 @@ func main() {
 	lineNumber := 1
 
 	re := regexp.MustCompile(`\*`)
+	regexSanitize := regexp.MustCompile(`(\.|\%|\/|\*|\$|\@|\&|\_|\+|\=|\-)\d{1,2}$|^\d{1,2}(\.|\%|\/|\*|\$|\@|\&|\_|\+|\=|\-)|^(\.|\%|\/|\*|\$|\@|\&|\_|\+|\=|\-)\d{1}(\.|\%|\/|\*|\$|\@|\&|\_|\+|\=|\-)`)
+	regexNumber := regexp.MustCompile(`[0-9]+`)
+	regexRight := regexp.MustCompile(`^\*\d{1,3}`)
+	regexLeft := regexp.MustCompile(`\d{1,3}\*$`)
 
 	scanner := bufio.NewScanner(file)
 
@@ -354,22 +43,82 @@ func main() {
 			init := match[0]
 			end := match[1]
 
-			upperLine := ""
-			lowerLine := ""
+			upperLine := lines[i-1]
+			lowerLine := lines[i+1]
 
-			if i > 1 {
-				upperLine = lines[i-1]
+			var numbers []int
+
+			leftMatch := regexLeft.FindAllString(lines[i][init-3:end], -1)
+
+			if len(leftMatch) > 0 {
+				num, err := strconv.Atoi(re.ReplaceAllString(leftMatch[0], ""))
+
+				if err == nil {
+					numbers = append(numbers, num)
+					// fmt.Printf("numero encontrado na esquerda: %s %d \n", lines[i][init-3:end], num)
+
+				}
 			}
 
-			if i < len(lines) {
-				lowerLine = lines[i+1]
+			rightMatch := regexRight.FindAllString(lines[i][init:end+3], -1)
+
+			if len(rightMatch) > 0 {
+
+				num, err := strconv.Atoi(re.ReplaceAllString(rightMatch[0], ""))
+
+				if err == nil {
+					// fmt.Printf("numero encontrado na direita: %s %d \n", lines[i][init:end+3], num)
+					numbers = append(numbers, num)
+				}
 			}
 
-			num := checkAsteriskConnectedNumbers(line, upperLine, lowerLine, init, end)
+			sanitizeUpperMatch := regexSanitize.ReplaceAllString(upperLine[init-3:end+3], "")
+			sanitizeLowerMatch := regexSanitize.ReplaceAllString(lowerLine[init-3:end+3], "")
 
-			if num > 0 {
-				result += num
+			fmt.Printf("LINHA={%s} CIMA={%s} BAIXO={%s} \n", lines[i][init-3:end+3], upperLine[init-3:end+3], lowerLine[init-3:end+3])
+
+			upperMatch := regexNumber.FindAllString(sanitizeUpperMatch, -1)
+			lowerMatch := regexNumber.FindAllString(sanitizeLowerMatch, -1)
+
+			if len(upperMatch) > 0 {
+				for _, value := range upperMatch {
+					// fmt.Println("Index:", index, "Value:", value)
+
+					num, err := strconv.Atoi(value)
+
+					if err == nil {
+						// fmt.Printf("numero encontrado na linha de cima: %s %d \n", sanitizeUpperMatch, num)
+						numbers = append(numbers, num)
+					}
+				}
 			}
+
+			if len(lowerMatch) > 0 {
+				for _, value := range lowerMatch {
+					// fmt.Println("Index:", index, "Value:", value)
+
+					num, err := strconv.Atoi(value)
+
+					if err == nil {
+						// fmt.Printf("numero encontrado na linha de baixo: %s %d \n", sanitizeLowerMatch, num)
+						numbers = append(numbers, num)
+					}
+				}
+			}
+
+			if len(numbers) > 2 {
+				for i := 0; i < len(numbers); i++ {
+					fmt.Printf("{%d}", numbers[i])
+				}
+				fmt.Printf("ERROR")
+			}
+
+			if len(numbers) == 2 {
+				result += numbers[0] * numbers[1]
+
+				fmt.Printf("multiplicando %d * %d \n", numbers[0], numbers[1])
+			}
+
 		}
 	}
 	println(result)
